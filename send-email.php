@@ -15,16 +15,17 @@ require 'vendor/autoload.php';
 $mail = new PHPMailer(true);
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
-    if (empty($name) || empty($email) || empty($subject) || empty($message)) {
-        exit();
-        header("Location: ../form.php");
-    }
-
     $name = htmlspecialchars($_POST["name"]);
     $email = htmlspecialchars($_POST["email"]);
     $subject = htmlspecialchars($_POST["subject"]);
     $message = htmlspecialchars($_POST["message"]);
+
+    if (empty($name) || empty($email) || empty($subject) || empty($message)) {
+        echo "Must fill out all fields.";
+        header("Location: {$_SERVER["HTTP_REFERER"]}");  // redirect to previous page
+        exit(0);
+    }
+
     $body = "Name: $name \n"."email: $email \n"." Message: $message";
 
     try {
@@ -71,5 +72,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
 } else {
-    header("Location: ../form.php");
+    header("Location: {$_SERVER["HTTP_REFERER"]}");  // redirect to previous page
 }
