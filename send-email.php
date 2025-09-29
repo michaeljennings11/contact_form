@@ -1,5 +1,7 @@
 <?php
 
+session_start();
+
 //Import PHPMailer classes into the global namespace
 //These must be at the top of your script, not inside a function
 use PHPMailer\PHPMailer\PHPMailer;
@@ -54,14 +56,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mail->Body    = $body;
         //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
 
-        $mail->send();
-        echo 'Message has been sent';
+        if ($mail->send()) {
+            $_SESSION['status'] =  'Thank you for contacting!';
+            header("Location: {$_SERVER["HTTP_REFERER"]}");  // redirect to previous page
+            exit(0);
+        } else {
+            $_SESSION['status'] = "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        }
+
     } catch (Exception $e) {
         echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
     }
 
 
-    header("Location: ../form.php");
 
 } else {
     header("Location: ../form.php");
