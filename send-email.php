@@ -11,6 +11,9 @@ use PHPMailer\PHPMailer\Exception;
 //Load Composer's autoloader (created by composer, not included with PHPMailer)
 require 'vendor/autoload.php';
 
+//Import email config variables
+require './email-config.php';
+
 //Create an instance; passing `true` enables exceptions
 $mail = new PHPMailer(true);
 
@@ -26,24 +29,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit(0);
     }
 
-    $body = "Name: $name \n"."email: $email \n"." Message: $message";
+    $body = "Name: $name <br>"."email: $email <br>"." Message: $message";
 
     try {
         //Server settings
         $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
         $mail->isSMTP();                                            //Send using SMTP
-        $mail->Host       = 'smtp.example.com';                     //Set the SMTP server to send through (e.g. 'smtp.gmail.com)
+        $mail->Host       = $mailHost;                     //Set the SMTP server to send through (e.g. 'smtp.gmail.com)
+        //$mail->Host       = 'smtp.example.com';                     //Set the SMTP server to send through (e.g. 'smtp.gmail.com)
         $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
-        $mail->Username   = 'user@example.com';                     //SMTP username
-        $mail->Password   = 'secret';                               //SMTP password
+        $mail->Username   = $mailUsername;                     //SMTP username
+        //$mail->Username   = 'user@example.com';                     //SMTP username
+        $mail->Password   = $mailPassword;                               //SMTP password
+        //$mail->Password   = 'secret';                               //SMTP password
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
         $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
 
         //Recipients
-        $mail->setFrom('from@example.com', 'Mailer');
-        $mail->addAddress('joe@example.net', 'Joe User');     //Add a recipient
-        $mail->addAddress('ellen@example.com');               //Name is optional
-        $mail->addReplyTo($email, 'Information');
+        $mail->setFrom($mailFromAddress, $mailFromName);
+        //$mail->setFrom('from@example.com', 'Mailer');
+        $mail->addAddress($mailRecipientAddress, $mailRecipientName);     //Add a recipient
+        //$mail->addAddress('ellen@example.com');               //Name is optional
+        $mail->addReplyTo($email, $name);
         //$mail->addCC('cc@example.com');
         //$mail->addBCC('bcc@example.com');
 
@@ -53,7 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         //Content
         $mail->isHTML(true);                                  //Set email format to HTML
-        $mail->Subject = 'Inquiry from {$name}';
+        $mail->Subject = "Inquiry from {$name}";
         $mail->Body    = $body;
         //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
 
